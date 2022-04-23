@@ -6,11 +6,30 @@
 /*   By: hiyamamo <hiyamamo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 16:37:35 by hiyamamo          #+#    #+#             */
-/*   Updated: 2022/04/23 18:06:10 by hiyamamo         ###   ########.fr       */
+/*   Updated: 2022/04/23 19:17:06 by hiyamamo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+void	*cust_free(t_list *first)
+{
+	t_list	*current;
+	t_list	*tmp;
+
+	current = first;
+	while (current->next != NULL)
+	{
+		tmp = current->next;
+		free(current->c);
+		free(current);
+		current = tmp;
+	}
+	if (current->c != NULL)
+		free(current->c);
+	free(current);
+	return (NULL);
+}
 
 int	ft_lstsize(t_list *lst)
 {
@@ -29,7 +48,7 @@ int	ft_lstsize(t_list *lst)
 	return (count);
 }
 
-char	*copy_str_from_list(t_list *lst)
+char	*make_str_from_list(t_list *lst)
 {
 	int		size;
 	char	*res;
@@ -38,7 +57,7 @@ char	*copy_str_from_list(t_list *lst)
 	size = ft_lstsize(lst);
 	res = (char *) malloc(size * sizeof(char));
 	if (res == NULL)
-		return (NULL); //TODO: when res == NULL
+		return (cust_free(lst));
 	i = 0;
 	while (size-- > 0)
 	{
@@ -49,71 +68,60 @@ char	*copy_str_from_list(t_list *lst)
 	return (res);
 }
 
-t_list	*initilize_list_with_first_char(fd)
+t_list	*initilize_first_list(void)
 {
-	t_list	*first_lst;
+	t_list	*first;
 
-	first_lst = (t_list *) malloc(sizeof(t_list));
-	if (first_lst == NULL)
+	first = (t_list *) malloc(sizeof(t_list));
+	if (first == NULL)
 		return (NULL);
-	return (first_lst);
+	first->next = NULL;
+	first->c = NULL;
+	return (first);
 }
 
-int	read_char(int fd, t_list *lst)
+int	read_safely(int fd, t_list *current, t_list *first)
 {
 	char	*buff;
 	int		bytes_read;
 
 	buff = (char *) malloc(1 * sizeof(char));
+	current->c = buff;
 	if (buff == NULL)
 	{
-		free(lst);
-		return (0);
+		cust_free(first);
+		return (-1);
 	}
 	bytes_read = read(fd, buff, 1);
-	lst->c = buff;
 	return (bytes_read);
 }
 
 char	*get_next_line(int fd)
 {
-	t_list	*lst;
-	t_list	*first_lst;
-	t_list	*tmp;
+	t_list	*first;
+	t_list	*current;
 	int		bytes_read;
 	char	*buff;
 
-	first_lst = initilize_list_with_first_char(fd);
-	lst = first_lst;
-	bytes_read = read_char(fd, lst);
-	if (bytes_read == 0)
+	first = initilize_first_list();
+	current = first;
+	bytes_read = read_safely(fd, current, first);
+	if (bytes_read == 0 || bytes_read == -1)
 		return (NULL);
 	while (bytes_read != 0)
 	{
-		lst->next = (t_list *) malloc(sizeof(t_list));
-		if (lst->next == NULL)
-		{
-			lst = first_lst;
-			while (lst->next != NULL)
-			{
-				tmp = lst->next;
-				free(lst->c);
-				free(lst);
-				lst = tmp;
-			}
+		current->next = (t_list *) malloc(sizeof(t_list));
+		if (current->next == NULL)
+			return (cust_free(first));
+		current = current->next;
+		current->next = NULL;
+		bytes_read = read_safely(fd, current, first);
+		if (bytes_read == -1)
 			return (NULL);
-		}
-		lst = lst->next;
-		lst->next = NULL;
-		buff = (char *) malloc(1 * sizeof(char));
-		if (buff == NULL)
-			return (NULL);
-		bytes_read = read(fd, buff, 1);
-		lst->c = buff;
-		if (*(lst->c) == '\n')
+		if (*(current->c) == '\n')
 			break ;
 	}
-	return (copy_str_from_list(first_lst));
+	return (make_str_from_list(first));
 }
 
 //TODO: free buff(= free lst->c)
