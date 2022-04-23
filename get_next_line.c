@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hiyamamo <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: hiyamamo <hiyamamo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 16:37:35 by hiyamamo          #+#    #+#             */
-/*   Updated: 2022/04/23 16:37:37 by hiyamamo         ###   ########.fr       */
+/*   Updated: 2022/04/23 18:06:10 by hiyamamo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,56 +49,72 @@ char	*copy_str_from_list(t_list *lst)
 	return (res);
 }
 
+t_list	*initilize_list_with_first_char(fd)
+{
+	t_list	*first_lst;
+
+	first_lst = (t_list *) malloc(sizeof(t_list));
+	if (first_lst == NULL)
+		return (NULL);
+	return (first_lst);
+}
+
+int	read_char(int fd, t_list *lst)
+{
+	char	*buff;
+	int		bytes_read;
+
+	buff = (char *) malloc(1 * sizeof(char));
+	if (buff == NULL)
+	{
+		free(lst);
+		return (0);
+	}
+	bytes_read = read(fd, buff, 1);
+	lst->c = buff;
+	return (bytes_read);
+}
+
 char	*get_next_line(int fd)
 {
 	t_list	*lst;
 	t_list	*first_lst;
+	t_list	*tmp;
 	int		bytes_read;
 	char	*buff;
 
-	lst = (t_list *) malloc(sizeof(t_list));
-	if (lst == NULL)
+	first_lst = initilize_list_with_first_char(fd);
+	lst = first_lst;
+	bytes_read = read_char(fd, lst);
+	if (bytes_read == 0)
 		return (NULL);
-	first_lst = lst;
-	buff = (char *) malloc(1 * sizeof(char));
-	if (buff == NULL)
-		return (NULL);
-	bytes_read = read(fd, buff, 1);
-	lst->c = buff;
-	if (bytes_read != 0)
+	while (bytes_read != 0)
 	{
-		while (bytes_read != 0)
+		lst->next = (t_list *) malloc(sizeof(t_list));
+		if (lst->next == NULL)
 		{
-			lst->next = (t_list *) malloc(sizeof(t_list));
-			if (lst->next == NULL)
-				return (NULL); //TODO: call free functions to free everything.
-			lst = lst->next;
-			lst->next = NULL;
-			buff = (char *) malloc(1 * sizeof(char));
-			if (buff == NULL)
-				return (NULL);
-			bytes_read = read(fd, buff, 1);
-			lst->c = buff;
-			if (*(lst->c) == '\n')
-				break ;
+			lst = first_lst;
+			while (lst->next != NULL)
+			{
+				tmp = lst->next;
+				free(lst->c);
+				free(lst);
+				lst = tmp;
+			}
+			return (NULL);
 		}
-	}
-	else
-	{
-		free(lst);
-		return (NULL);
+		lst = lst->next;
+		lst->next = NULL;
+		buff = (char *) malloc(1 * sizeof(char));
+		if (buff == NULL)
+			return (NULL);
+		bytes_read = read(fd, buff, 1);
+		lst->c = buff;
+		if (*(lst->c) == '\n')
+			break ;
 	}
 	return (copy_str_from_list(first_lst));
 }
 
+//TODO: free buff(= free lst->c)
 //TODO: check static var
-//TODO: test fd other than stdin
-
-#include <stdio.h>
-int	main(void)
-{
-	char *r = get_next_line(1);
-	printf(">>%s<<\n", r);
-	return (0);
-}
-
