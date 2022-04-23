@@ -8,8 +8,8 @@
 
 typedef struct s_list
 {
-	void			*c;
-	struct a_list	*next;
+	char			*c;
+	struct s_list	*next;
 }	t_list;
 
 char *get_next_line(int fd);
