@@ -6,28 +6,26 @@
 /*   By: hiyamamo <hiyamamo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 16:37:35 by hiyamamo          #+#    #+#             */
-/*   Updated: 2022/04/23 19:17:06 by hiyamamo         ###   ########.fr       */
+/*   Updated: 2022/04/23 19:32:25 by hiyamamo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	*cust_free(t_list *first)
+void	*cust_free(t_list *lst)
 {
-	t_list	*current;
 	t_list	*tmp;
 
-	current = first;
-	while (current->next != NULL)
+	while (lst->next != NULL)
 	{
-		tmp = current->next;
-		free(current->c);
-		free(current);
-		current = tmp;
+		tmp = lst->next;
+		free(lst->c);
+		free(lst);
+		lst = tmp;
 	}
-	if (current->c != NULL)
-		free(current->c);
-	free(current);
+	if (lst->c != NULL)
+		free(lst->c);
+	free(lst);
 	return (NULL);
 }
 
@@ -50,10 +48,12 @@ int	ft_lstsize(t_list *lst)
 
 char	*make_str_from_list(t_list *lst)
 {
+	t_list	*first;
 	int		size;
 	char	*res;
 	int		i;
 
+	first = lst;
 	size = ft_lstsize(lst);
 	res = (char *) malloc(size * sizeof(char));
 	if (res == NULL)
@@ -65,6 +65,7 @@ char	*make_str_from_list(t_list *lst)
 		lst = lst->next;
 		i++;
 	}
+	cust_free(first);
 	return (res);
 }
 
@@ -101,7 +102,6 @@ char	*get_next_line(int fd)
 	t_list	*first;
 	t_list	*current;
 	int		bytes_read;
-	char	*buff;
 
 	first = initilize_first_list();
 	current = first;
@@ -123,6 +123,4 @@ char	*get_next_line(int fd)
 	}
 	return (make_str_from_list(first));
 }
-
-//TODO: free buff(= free lst->c)
 //TODO: check static var
