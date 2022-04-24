@@ -57,7 +57,7 @@ char	*make_str_from_list(t_list *lst)
 	size = ft_lstsize(lst);
 	res = (char *) malloc(size * sizeof(char));
 	if (res == NULL)
-		return (cust_free(lst));
+		return (cust_free(first));
 	i = 0;
 	while (size-- > 0)
 	{
@@ -107,7 +107,7 @@ char	*get_next_line(int fd)
 	current = first;
 	bytes_read = read_safely(fd, current, first);
 	if (bytes_read == 0 || bytes_read == -1)
-		return (NULL);
+		return (cust_free(first));
 	while (bytes_read != 0)
 	{
 		current->next = (t_list *) malloc(sizeof(t_list));
