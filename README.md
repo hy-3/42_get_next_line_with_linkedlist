@@ -9,5 +9,5 @@ I used Linked List so that you don't need to specify buffer size when you read f
 ## Usage
 ```
 $ gcc -c get_next_line.c
-$ gcc -c <your c file> get_next_line.o
+$ gcc <your c file> get_next_line.o
 ```
