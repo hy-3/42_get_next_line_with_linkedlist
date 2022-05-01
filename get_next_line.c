@@ -123,4 +123,3 @@ char	*get_next_line(int fd)
 	}
 	return (make_str_from_list(first));
 }
-//TODO: check static var
