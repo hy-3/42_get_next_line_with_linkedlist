@@ -1,4 +1,3 @@
-Write a function that returns a line read from a
 # get_next_line with LinkedList
 
 A function that returns a line read from a file descriptor.
