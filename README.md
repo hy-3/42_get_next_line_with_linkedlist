@@ -1,13 +1,16 @@
-# get_next_line with LinkedList
+# get_next_line with Linked List
 
-A function that returns a line read from a file descriptor.
+It's a function that returns a line read from a file descriptor.
 
-Repeated calls of get_next_line() function will let you read the text file pointed to by the file descriptor, one line at a time.
+get_next_line() function will let you read one line at a time from the file descriptor you specified.
 
-I used Linked List so that you don't need to specify buffer size when you read from file discriptor.
+This one is using Linked List so that you don't need to specify buffer size when you read from file discriptor.<br>
+<a href="https://github.com/hy-3/get_next_line" target="_blank">Non Linked List version get_next_line() function is available here</a>
 
 ## Usage
 ```
+-- overview --
 $ gcc -c get_next_line.c
 $ gcc <your c file> get_next_line.o
+$ ./a.out
 ```
